@@ -31,38 +31,30 @@ public class ReservationService {
     }
     public Collection<IRoom> findRooms(Date checkIn, Date checkOut) {
         List<IRoom> availableRooms = new ArrayList<>();
-
         for (IRoom room : roomsList.values()) {
             if (isRoomAvailable(room, checkIn, checkOut)) {
                 availableRooms.add(room);
             }
         }
-        //System.out.println(availableRooms);
         return availableRooms;
     }
      public boolean isRoomAvailable(IRoom room, Date checkIn, Date checkOut) {
-         List<IRoom> notAvailRooms = new ArrayList<>();
+
          for (Reservation reservation : reservationsList.values()) {
             Room reserved = (Room) reservation.getRoom();
-            if (reserved.getRoomNumber().equals(room.getRoomNumber())){
-                if (datesOverlap(checkIn, checkOut, reservation)) {
-                    notAvailRooms.add(room);
+            if (reserved.getRoomNumber().equals(room.getRoomNumber()) && datesOverlap(checkIn, checkOut, reservation)) {
                     return false;
-                }
             }
         }
         return true;
     }
-    public Collection<IRoom> findAltRooms(Date checkIn, Date checkOut) {
-        return findRooms(add7DaysToDate(checkIn), add7DaysToDate(checkOut));
+    public Collection<IRoom> findAltRooms(Date altCheckIn, Date altCheckOut) {
+        System.out.println("There are no rooms available during this time.\n"+
+                "We also checked from " + altCheckIn + " to " + altCheckOut + ", and...");
+        return findRooms(altCheckIn, altCheckOut);
+
     }
-    private static Date add7DaysToDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, 7);
-        return c.getTime();
-    }
-    private boolean datesOverlap(Date checkIn, Date checkOut, Reservation reservation) {
+    boolean datesOverlap(Date checkIn, Date checkOut, Reservation reservation) {
         return (checkIn.equals(reservation.getCheckIn()) && checkOut.equals(reservation.getCheckOut())
                 ||checkIn.after(reservation.getCheckIn()) && checkOut.before(reservation.getCheckOut())
                 || checkIn.before(reservation.getCheckIn()) && checkOut.after(reservation.getCheckIn())
